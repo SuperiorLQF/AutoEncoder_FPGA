@@ -12,8 +12,8 @@
 //num_sel:      [10,14]
 //add_result:   [10,14]
 //sum:          [10,14]
-//sum_short:    [10,5]
-//act_in:       [3,5]
+//sum_short:    [10,6]
+//act_in:       [2,6]
 //out_dat       [1,7]
 ///////////////////////////////
 
@@ -50,7 +50,7 @@ reg  [CALC_W-1:0]       mul_d;
 wire [CALC_W-1:0]       num_sel;
 wire [CALC_W-1:0]       add_result;
 reg  [CALC_W-1:0]       sum;
-wire [CALC_W-1-9:0]     sum_short;
+wire [CALC_W-1-8:0]     sum_short;
 reg  [BIAS_W-1:0]       bias [0:0];
 wire [ACT_IN_W-1:0]     act_in;
 
@@ -168,24 +168,34 @@ always @(posedge clk,negedge rst_n) begin
         sum <= add_result;
     end
 end
-assign sum_short = sum[CALC_W-1:9];
+assign sum_short = sum[CALC_W-1:8];
 
-assign act_in = ($signed(sum_short) >= $signed({{3'b011},{(2*WEIGHT_W-11){1'b1}}}) )?{1'b0,{(WEIGHT_W-1){1'b1}}}:
-                ($signed(sum_short) <= $signed({{3'b100},{(2*WEIGHT_W-11){1'b0}}}) )?{1'b1,{(WEIGHT_W-1){1'b0}}}:
+assign act_in = ($signed(sum_short) >= $signed({{2'b01},{(2*WEIGHT_W-10){1'b1}}}) )?{1'b0,{(WEIGHT_W-1){1'b1}}}:
+                ($signed(sum_short) <= $signed({{2'b10},{(2*WEIGHT_W-10){1'b0}}}) )?{1'b1,{(WEIGHT_W-1){1'b0}}}:
                 sum_short[WEIGHT_W-1:0];
-
-tanh_calc#(
-    .IN_DAT_W   (ACT_IN_W ),
-    .OUT_DAT_W  (WEIGHT_W ),
-    .BASE_DIR   (BASE_DIR ),
-    .MEM_DIR    (MEM_DIR  ),
-    .MEM_FILE   (ACT_FILE )
-)u_tanh_calc(
+//act in -2.000 ~ +1.999
+tanh_calc u_tanh_calc(
+    .rst_n      (rst_n    ),
     .clk        (clk      ),
     .in_x       (act_in   ),
     .in_valid   (sum_valid),
     .out_y      (out_dat  ),
-    .out_valid  (out_valid)  
+    .out_valid  (out_valid) 
 );
+
+
+// tanh_calc#(
+//     .IN_DAT_W   (ACT_IN_W ),
+//     .OUT_DAT_W  (WEIGHT_W ),
+//     .BASE_DIR   (BASE_DIR ),
+//     .MEM_DIR    (MEM_DIR  ),
+//     .MEM_FILE   (ACT_FILE )
+// )u_tanh_calc(
+//     .clk        (clk      ),
+//     .in_x       (act_in   ),
+//     .in_valid   (sum_valid),
+//     .out_y      (out_dat  ),
+//     .out_valid  (out_valid)  
+// );
 
 endmodule
