@@ -26,7 +26,6 @@ module neuron#(
     parameter   ACT_IN_W    = 8,
     parameter   BASE_DIR        = "/home/superior/AutoEncoder_FPGA",
     parameter   MEM_DIR         = "/design/mem_file",
-    parameter   ACT_FILE        = "/tanh_mem.txt"     ,
     parameter   WEIGHT_FILE_PFX = "/weight_mem_",
     parameter   BIAS_FILE_PFX   = "/bias_mem_",
     parameter   LAYER_IDX       = "0",
@@ -36,8 +35,8 @@ module neuron#(
     input                   rst_n   ,
     input   [INPUT_W-1:0]   in_dat  ,      
     input                   in_valid,//successive
-    output  [OUTPUT_W-1:0]  out_dat ,
-    output                  out_valid
+(*mark_debug = "true"*)     output  [OUTPUT_W-1:0]  out_dat ,
+(*mark_debug = "true"*)     output                  out_valid
 );
 
 localparam  CALC_W = WEIGHT_W + INPUT_W;

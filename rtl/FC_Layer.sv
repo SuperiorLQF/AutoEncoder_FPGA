@@ -1,14 +1,13 @@
 module FC_Layer#(
-    parameter DIM_INPUT  = 96,
-    parameter DIM_OUTPUT = 8,//neuron number
-    parameter INPUT_W    = 16,
-    parameter OUTPUT_W   = 8,
-    parameter WEIGHT_W   = 8,
-    parameter BIAS_W     = 15,
+    parameter DIM_INPUT  = 96,  //Layer input dim
+    parameter DIM_OUTPUT = 8,   //Layer output dim
+    parameter INPUT_W    = 16,  //input resolution:16bit [9,7]  (-256,256)
+    parameter OUTPUT_W   = 8,   //output resolution:8bit [1,7] (-1,1)
+    parameter WEIGHT_W   = 8,   //weight resolution:8bit [1,7] (-1,1)
+    parameter BIAS_W     = 15,  //bias resolution:15bit [1,14] (-1,1)  
     parameter LAYER_IDX         = "",
     parameter BASE_DIR          = "/home/superior/BCI_compression",
     parameter MEM_DIR           = "/design/mem_file",
-    parameter ACT_FILE          = "/tanh_mem.txt",
     parameter WEIGHT_FILE_PFX   = "/weight_mem_",
     parameter BIAS_FILE_PFX     = "/bias_mem_"
 )(
@@ -29,7 +28,6 @@ neuron#(
     .ACT_IN_W   (WEIGHT_W ),
     .BASE_DIR   (BASE_DIR ),
     .MEM_DIR    (MEM_DIR  ),
-    .ACT_FILE   (ACT_FILE ),
     .WEIGHT_FILE_PFX    (WEIGHT_FILE_PFX),
     .BIAS_FILE_PFX      (BIAS_FILE_PFX  ),
     .LAYER_IDX          (LAYER_IDX),
@@ -52,7 +50,6 @@ neuron#(
     .ACT_IN_W   (WEIGHT_W ),
     .BASE_DIR   (BASE_DIR ),
     .MEM_DIR    (MEM_DIR  ),
-    .ACT_FILE   (ACT_FILE ),
     .WEIGHT_FILE_PFX    (WEIGHT_FILE_PFX),
     .BIAS_FILE_PFX      (BIAS_FILE_PFX  ),
     .LAYER_IDX          (LAYER_IDX),
@@ -75,7 +72,6 @@ neuron#(
     .ACT_IN_W   (WEIGHT_W ),
     .BASE_DIR   (BASE_DIR ),
     .MEM_DIR    (MEM_DIR  ),
-    .ACT_FILE   (ACT_FILE ),
     .WEIGHT_FILE_PFX    (WEIGHT_FILE_PFX),
     .BIAS_FILE_PFX      (BIAS_FILE_PFX  ),
     .LAYER_IDX          (LAYER_IDX),
@@ -98,7 +94,6 @@ neuron#(
     .ACT_IN_W   (WEIGHT_W ),
     .BASE_DIR   (BASE_DIR ),
     .MEM_DIR    (MEM_DIR  ),
-    .ACT_FILE   (ACT_FILE ),
     .WEIGHT_FILE_PFX    (WEIGHT_FILE_PFX),
     .BIAS_FILE_PFX      (BIAS_FILE_PFX  ),
     .LAYER_IDX          (LAYER_IDX),
@@ -121,7 +116,6 @@ neuron#(
     .ACT_IN_W   (WEIGHT_W ),
     .BASE_DIR   (BASE_DIR ),
     .MEM_DIR    (MEM_DIR  ),
-    .ACT_FILE   (ACT_FILE ),
     .WEIGHT_FILE_PFX    (WEIGHT_FILE_PFX),
     .BIAS_FILE_PFX      (BIAS_FILE_PFX  ),
     .LAYER_IDX          (LAYER_IDX),
@@ -144,7 +138,6 @@ neuron#(
     .ACT_IN_W   (WEIGHT_W ),
     .BASE_DIR   (BASE_DIR ),
     .MEM_DIR    (MEM_DIR  ),
-    .ACT_FILE   (ACT_FILE ),
     .WEIGHT_FILE_PFX    (WEIGHT_FILE_PFX),
     .BIAS_FILE_PFX      (BIAS_FILE_PFX  ),
     .LAYER_IDX          (LAYER_IDX),
@@ -167,7 +160,6 @@ neuron#(
     .ACT_IN_W   (WEIGHT_W ),
     .BASE_DIR   (BASE_DIR ),
     .MEM_DIR    (MEM_DIR  ),
-    .ACT_FILE   (ACT_FILE ),
     .WEIGHT_FILE_PFX    (WEIGHT_FILE_PFX),
     .BIAS_FILE_PFX      (BIAS_FILE_PFX  ),
     .LAYER_IDX          (LAYER_IDX),
@@ -190,7 +182,6 @@ neuron#(
     .ACT_IN_W   (WEIGHT_W ),
     .BASE_DIR   (BASE_DIR ),
     .MEM_DIR    (MEM_DIR  ),
-    .ACT_FILE   (ACT_FILE ),
     .WEIGHT_FILE_PFX    (WEIGHT_FILE_PFX),
     .BIAS_FILE_PFX      (BIAS_FILE_PFX  ),
     .LAYER_IDX          (LAYER_IDX),

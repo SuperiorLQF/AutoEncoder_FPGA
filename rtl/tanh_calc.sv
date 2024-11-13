@@ -1,11 +1,4 @@
 module tanh_calc
-// #(
-//     parameter  IN_DAT_W  = 8,
-//     parameter  OUT_DAT_W = 8,
-//     parameter  BASE_DIR  = "/home/superior/AutoEncoder_FPGA",
-//     parameter  MEM_DIR   = "",
-//     parameter  MEM_FILE  = "/design/mem_file/tanh_mem.txt"
-// )
 (
     input                       rst_n   ,
     input                       clk     ,
@@ -14,6 +7,7 @@ module tanh_calc
     output  reg [7:0]           out_y   ,
     output  reg                 out_valid  
 );
+///////////////////////////////////////////////////
 //input [2,6]   -2.00 ～ 1.99 
 //如果是正值，则转换为负值，并用最高位取反作为flag
 //input_sign [2,6]   -2.00 ~ 0 (负数部分)
@@ -23,6 +17,7 @@ module tanh_calc
 //add1_pow [2,7] 0~1
 //pow_m1 [2,7] -1~0 
 //falg为正则再次取反
+///////////////////////////////////////////////////
 wire flag;
 wire cond1;
 wire [7:0] input_sign;
@@ -72,24 +67,4 @@ always @(posedge clk,negedge rst_n) begin
         out_valid <= 1'b0;
     end
 end
-
-
-// localparam  MEM_PATH = {BASE_DIR,MEM_DIR,MEM_FILE};
-// reg [OUT_DAT_W-1:0] mem [2**IN_DAT_W-1:0];
-
-// initial begin
-//     $readmemb(MEM_PATH,mem);
-//     out_y = 'd0;
-//     out_valid = 1'b0;
-// end
-
-// always @(posedge clk) begin
-//     if(in_valid)begin
-//         out_y <= mem[in_x];
-//         out_valid <= 1'b1;
-//     end
-//     else begin
-//         out_valid <= 1'b0;
-//     end
-// end
 endmodule
