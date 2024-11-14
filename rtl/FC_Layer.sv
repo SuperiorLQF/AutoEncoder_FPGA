@@ -13,8 +13,8 @@ module FC_Layer#(
 )(
     input                   clk     ,
     input                   rst_n   ,
-    input   [INPUT_W-1:0]   in_dat  ,      
-    input                   in_valid,
+    (*mark_debug = "true"*)input   [INPUT_W-1:0]   in_dat  ,      
+    (*mark_debug = "true"*)input                   in_valid,
     output  [OUTPUT_W-1:0]  out_dat [DIM_OUTPUT-1:0],
     output                  out_valid
 );

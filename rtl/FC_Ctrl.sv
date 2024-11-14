@@ -15,15 +15,15 @@ module FC_Ctrl#(
     output  reg   [INPUT_W-1:0]         fc_in_dat   ,      
     input   wire  [OUTPUT_W-1:0]        fc_out_dat [DIM_OUTPUT-1:0],
     //
-    input   wire   [BRAM_ADDR_W-1:0]    bc_addr     ,
-    input   wire                        bc_en       ,
-    input   wire   [7:0]                bc_we       ,
+    (*mark_debug = "true"*)input   wire   [BRAM_ADDR_W-1:0]    bc_addr     ,
+    (*mark_debug = "true"*)input   wire                        bc_en       ,
+    (*mark_debug = "true"*)input   wire   [7:0]                bc_we       ,
     //
-    input   wire   [BRAM_DAT_W -1:0]    fc_dout     ,
-    output  wire   [BRAM_DAT_W -1:0]    fc_din      ,
-    output  wire   [BRAM_ADDR_W-1:0]    fc_addr     ,
-    output  reg                         fc_en       ,
-    output  reg    [7:0]                fc_we       ,
+    (*mark_debug = "true"*)input   wire   [BRAM_DAT_W -1:0]    fc_dout     ,
+    (*mark_debug = "true"*)output  wire   [BRAM_DAT_W -1:0]    fc_din      ,
+    (*mark_debug = "true"*)output  wire   [BRAM_ADDR_W-1:0]    fc_addr     ,
+    (*mark_debug = "true"*)output  reg                         fc_en       ,
+    (*mark_debug = "true"*)output  reg    [7:0]                fc_we       ,
     //
     input   wire                        axi_ar_ready,
     input   wire                        axi_ar_valid,
