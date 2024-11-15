@@ -5,9 +5,9 @@ module FC_Layer#(
     parameter OUTPUT_W   = 8,   //output resolution:8bit [1,7] (-1,1)
     parameter WEIGHT_W   = 8,   //weight resolution:8bit [1,7] (-1,1)
     parameter BIAS_W     = 15,  //bias resolution:15bit [1,14] (-1,1)  
-    parameter LAYER_IDX         = "",
-    parameter BASE_DIR          = "/home/superior/BCI_compression",
-    parameter MEM_DIR           = "/design/mem_file",
+    parameter LAYER_IDX         = "0",
+    parameter BASE_DIR          = "/home/superior/AutoEncoder_FPGA",
+    parameter MEM_DIR           = "/output/mem_file",
     parameter WEIGHT_FILE_PFX   = "/weight_mem_",
     parameter BIAS_FILE_PFX     = "/bias_mem_"
 )(
