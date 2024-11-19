@@ -5,13 +5,13 @@ module fxp2float_s #(
     input   [7:0]  fxp,
     output  [31:0]  fp32
 );
-    logic all_zero;
-    logic s;
-    logic [7:0]  e;
-    logic [22:0] m;
-    logic [7:0] fxp_abs;
+    wire all_zero;
+    wire s;
+    wire [7:0]  e;
+    wire [22:0] m;
+    wire [7:0] fxp_abs;
     integer i;
-    logic [2:0] lead_one_pos;
+    reg [2:0] lead_one_pos;
     assign all_zero = ~(|fxp);
     assign s = fxp[7];
     assign fxp_abs = s?(~fxp)+1'b1:fxp;

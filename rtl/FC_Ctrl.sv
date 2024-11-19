@@ -5,6 +5,8 @@ module FC_Ctrl#(
     parameter OUTPUT_W   = 8,  
     parameter BRAM_DAT_W = 64,
     parameter BRAM_ADDR_W= 32,
+    parameter ADDR_MW    = 15,
+    parameter ADDR_SW    = 12,
     parameter BATCH_NUM  = 10
 )(
     input   wire                        clk         ,
@@ -15,15 +17,15 @@ module FC_Ctrl#(
     output  reg   [INPUT_W-1:0]         fc_in_dat   ,      
     input   wire  [OUTPUT_W-1:0]        fc_out_dat [DIM_OUTPUT-1:0],
     //
-    (*mark_debug = "true"*)input   wire   [BRAM_ADDR_W-1:0]    bc_addr     ,
+    (*mark_debug = "true"*)input   wire   [ADDR_MW-1:0]        bc_addr     ,
     (*mark_debug = "true"*)input   wire                        bc_en       ,
-    (*mark_debug = "true"*)input   wire   [7:0]                bc_we       ,
+    (*mark_debug = "true"*)input   wire                        bc_we       ,
     //
-    (*mark_debug = "true"*)input   wire   [BRAM_DAT_W -1:0]    fc_dout     ,
-    (*mark_debug = "true"*)output  wire   [BRAM_DAT_W -1:0]    fc_din      ,
-    (*mark_debug = "true"*)output  wire   [BRAM_ADDR_W-1:0]    fc_addr     ,
+    (*mark_debug = "true"*)input   wire   [31:0]               fc_dout     ,
+    (*mark_debug = "true"*)output  wire   [31:0]               fc_din      ,
+    (*mark_debug = "true"*)output  wire   [ADDR_SW-1:0]        fc_addr     ,
     (*mark_debug = "true"*)output  reg                         fc_en       ,
-    (*mark_debug = "true"*)output  reg    [7:0]                fc_we       ,
+    (*mark_debug = "true"*)output  reg                         fc_we       ,
     //
     input   wire                        axi_ar_ready,
     input   wire                        axi_ar_valid,
@@ -35,14 +37,28 @@ module FC_Ctrl#(
        
 );
 
-//128kB BRAM addr range from 0x0000 - 0x1FFFF
-//DIN_REGION:       0x00000 - 0x1EFFF(124kB)
-//RESULT_REGION:    0x1F000 - 0x1FFFF(4kB)
-localparam  ADDR_INC = BRAM_DAT_W / 8;
-localparam  FC_LOAD_BASE  = 'h0000;
-localparam  FC_STORE_BASE = 'h3400;
-localparam  FC_LOAD_LAST_ADDR   = FC_LOAD_BASE + BATCH_NUM * DIM_INPUT * INPUT_W / 8 - ADDR_INC;
-localparam  FC_STORE_LAST_ADDR  = FC_STORE_BASE + BATCH_NUM * DIM_OUTPUT * OUTPUT_W / 8 -ADDR_INC;
+/////////////////////////////////////////////////////
+//32KB BRAM Controller interface
+//0x0000 - 0x7FFF 64bit DATA WIDTH
+//DIN_REGION:       0x0000 - 0x67FF (26KB)
+//RESULT_REGION:    0x6800 - 0x7FFF (6KB)
+/////////////////////////////////////////////////////
+localparam  BC_STORE_BASE       = 'h0000;
+localparam  BC_STORE_ADDR_INC   = 64 / 8;
+localparam  BC_STORE_LAST_ADDR  = BC_STORE_BASE + BATCH_NUM * DIM_INPUT * 32 / 8 - BC_STORE_ADDR_INC;
+
+
+//////////////////////////////////////////////////////
+//16kB BRAM addr range from 0x000 - 0xFFF(32BIT 编址)
+//DIN_REGION:       0x000 - 0xCFF(13kB)
+//RESULT_REGION:    0xD00 - 0xFFF(3kB)
+//////////////////////////////////////////////////////
+localparam  FC_LOAD_BASE        = 'h000;
+localparam  FC_STORE_BASE       = 'hd00;
+localparam  FC_LOAD_ADDR_INC    =  1;
+localparam  FC_STORE_ADDR_INC   =  1;
+localparam  FC_STORE_LAST_ADDR  = FC_STORE_BASE + BATCH_NUM * DIM_OUTPUT / 2 -FC_STORE_ADDR_INC;
+
 
 localparam  BC_STORE    = 3'b000;
 localparam  BC_STORE_OK = 3'b001;
@@ -55,24 +71,22 @@ wire    bc_store_last;
 // wire    bc_load_last;
 wire    fc_store_last;
 wire    bc_load_ready;
-reg     [BRAM_ADDR_W-1:0] fc_rd_addr;
-reg     [BRAM_ADDR_W-1:0] fc_wr_addr;
+reg     [ADDR_SW-1:0] fc_rd_addr;
+reg     [ADDR_SW-1:0] fc_wr_addr;
 reg     [2:0] cstate,nstate;
 wire    fc_store_done;
 wire    fc_read_done;
-
+wire    fc_rd_addr_inc;
 reg     [3:0]  fc_store_cnt;
 reg     [10:0] fc_load_cnt ; 
 
-wire    fc_rd_addr_inc;
-
 reg     [OUTPUT_W*DIM_OUTPUT-1:0]  fc_out_dat_r;
 
-assign fc_addr = (&fc_we)?fc_wr_addr:fc_rd_addr;
+assign fc_addr = fc_we?fc_wr_addr:fc_rd_addr;
 
-assign bc_store_last = (&bc_we)     & bc_en & (bc_addr == FC_LOAD_LAST_ADDR );
-// assign bc_load_last  = (~(&bc_we))  & bc_en & (bc_addr == FC_STORE_LAST_ADDR);
-assign fc_store_last = (&fc_we)     & fc_en & (fc_addr == FC_STORE_LAST_ADDR);
+assign bc_store_last = bc_we    & bc_en & (bc_addr == BC_STORE_LAST_ADDR );
+
+assign fc_store_last = fc_we    & fc_en & (fc_addr == FC_STORE_LAST_ADDR);
 
 assign bc_load_ready = (cstate == FC_STORE_OK);
 /////////////////////////////////////////////////////
@@ -121,43 +135,49 @@ always @(posedge clk,negedge rst_n) begin
         fc_rd_addr <= FC_LOAD_BASE;
         fc_wr_addr <= FC_STORE_BASE;
         fc_en      <= 1'b0;
-        fc_we      <= 8'b0;
+        fc_we      <= 1'b0;
     end
     else if(cstate == BC_STORE_OK)begin 
         fc_rd_addr <= FC_LOAD_BASE;
         fc_wr_addr <= FC_STORE_BASE;
         fc_en      <= 1'b1;
-        fc_we      <= 8'b0;      
+        fc_we      <= 1'b0;      
     end
     else if(cstate == FC_LOAD)begin
         if(nstate == FC_STORE)begin
-            fc_we <= 8'b1111_1111;
+            fc_we <= 1'b1;
             fc_en <= 1'b1;
         end
         else if(fc_read_done)begin
             fc_en <= 1'b0;
+            fc_rd_addr <= fc_rd_addr + FC_LOAD_ADDR_INC;
         end
         else if(fc_rd_addr_inc)begin
-            fc_rd_addr <= fc_rd_addr + ADDR_INC;
+            fc_rd_addr <= fc_rd_addr + FC_LOAD_ADDR_INC;
         end
     end
     else if(cstate == FC_STORE)begin
         if(nstate == FC_STORE_OK)begin
-            fc_we <= 8'b0;
+            fc_we <= 1'b0;
             fc_en <= 1'b0;
         end
+        else if(nstate == FC_LOAD)begin
+            fc_en      <= 1'b1;
+            fc_we      <= 1'b0; 
+            fc_wr_addr<= fc_wr_addr + FC_STORE_ADDR_INC;
+        end   
         else begin
             fc_en      <= 1'b1;
-            fc_we      <= 8'b0; 
-            fc_wr_addr<= fc_wr_addr + ADDR_INC;
-        end      
+            fc_we      <= 1'b1; 
+            fc_wr_addr<= fc_wr_addr + FC_STORE_ADDR_INC;            
+        end   
     end
 end
 
 ///////////////////////////////////////
 //FC store loop
 ///////////////////////////////////////
-localparam FC_STORE_DONE_CYCLE = (DIM_OUTPUT * OUTPUT_W +  BRAM_DAT_W -1)/ BRAM_DAT_W;//手动向上取整
+localparam FC_STORE_DONE_CYCLE = DIM_OUTPUT / 2;
 genvar i;
 generate
     for(i=0;i<DIM_OUTPUT;i=i+1)begin
@@ -170,7 +190,11 @@ generate
 endgenerate
 
 
-assign fc_din = fc_out_dat_r[fc_store_cnt*64+:64];
+assign fc_din = {   8'b0000_0000,
+                    fc_out_dat_r[fc_store_cnt*16+8+:8],
+                    8'b0000_0000,
+                    fc_out_dat_r[fc_store_cnt*16+:8]};
+
 assign fc_store_done = (cstate == FC_STORE) && (fc_store_cnt == FC_STORE_DONE_CYCLE-1);
 always @(posedge clk,negedge rst_n) begin
     if(~rst_n)begin
@@ -196,14 +220,14 @@ always @(posedge clk,negedge rst_n) begin
     else if(fc_read_done)begin
         fc_load_cnt <= 'd0;
     end
-    else if(cstate == FC_LOAD)begin
+    else if((cstate == FC_LOAD)&fc_en)begin
         fc_load_cnt <= fc_load_cnt + 1'b1;
     end
     else begin
         fc_load_cnt <= 'd0;
     end
 end
-assign fc_rd_addr_inc = (fc_load_cnt[1:0] == 2'b11);
+assign fc_rd_addr_inc = fc_load_cnt[0];
 always @(posedge clk,negedge rst_n) begin
     if(~rst_n)begin
         fc_in_vld <= 1'b0;
@@ -217,17 +241,14 @@ always @(posedge clk,negedge rst_n) begin
 end
 always@(*) begin
     if(cstate == FC_LOAD)begin
-        case (fc_load_cnt[1:0])
-            2'b01:fc_in_dat = fc_dout[0*16+:16];
-            2'b10:fc_in_dat = fc_dout[1*16+:16];
-            2'b11:fc_in_dat = fc_dout[2*16+:16];
-            2'b00:fc_in_dat = fc_dout[3*16+:16]; 
+        case (fc_load_cnt[0])
+            1'b1:fc_in_dat = fc_dout[0*16+:16];
+            1'b0:fc_in_dat = fc_dout[1*16+:16];
         endcase        
     end
     else begin
         fc_in_dat = 'd0;
     end
-
 end
 
 ///////////////////////////////////////////////

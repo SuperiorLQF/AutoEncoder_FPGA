@@ -6,13 +6,13 @@ module float2fxp_s #(
     output  [15:0]  fxp_o,
     output          overflow       
 );
-logic signed [7:0]  exp_real;
-logic s;
-logic [7:0]     e;
-logic [22:0]    m;
-logic zero_flag;
-logic [15:0] fxp_bfs;//before shift
-logic [15:0] fxp_s;
+wire signed [7:0]  exp_real;
+wire s;
+wire [7:0]     e;
+wire [22:0]    m;
+wire zero_flag;
+wire [15:0] fxp_bfs;//before shift
+wire [15:0] fxp_s;
 assign s = fp32_i[31];
 assign e = fp32_i[30:23];
 assign m = fp32_i[22:0];
