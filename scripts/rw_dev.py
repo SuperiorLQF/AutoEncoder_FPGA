@@ -78,7 +78,7 @@ def fc_batch_cal(i_samples,
     batch_num   = i_samples.shape[0]
     input_dim   = i_samples.shape[1]
     output_dim  = 8
-    recv_size   = output_dim * batch_num * (32/8)
+    recv_size   = output_dim * batch_num * 4
 
     #turn i_samples into hex format
     send_data   = _generate_hex_from_np(i_samples)
