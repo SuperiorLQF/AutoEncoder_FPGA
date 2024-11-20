@@ -25,17 +25,17 @@ localparam CLK_FRE          = 200;      //clock frequency(Mhz)
 localparam BAUD_RATE        = 115200;   //UART baud rate
 localparam BRAM_DAT_W       = 64;
 localparam BRAM_ADDR_W      = 14;
-localparam BATCH_NUM        = 10;
-
-
+localparam BATCH_NUM        = 320;//10
+localparam ADDR_MW          = 17;
+localparam ADDR_SW          = ADDR_MW -3 ;
 wire  [INPUT_W-1:0]   fc_dat_i  ;      
 wire                  fc_vld_i;
 wire  [OUTPUT_W-1:0]  fc_dat_o [DIM_OUTPUT-1:0];
 wire                  fc_vld_o;
-wire [14:0]bc_addr;
+wire [ADDR_MW-1:0]bc_addr;
 wire bc_en;
 wire bc_we;
-wire [11:0]fc_addr;
+wire [ADDR_SW-1:0]fc_addr;
 wire [31:0]fc_din;
 wire [31:0]fc_dout;
 wire fc_en;
@@ -106,8 +106,8 @@ FC_Ctrl#(
     .OUTPUT_W   (OUTPUT_W   ), 
     .BRAM_DAT_W (BRAM_DAT_W ),
     .BRAM_ADDR_W(BRAM_ADDR_W),
-    .ADDR_MW    (15         ),
-    .ADDR_SW    (12         ),
+    .ADDR_MW    (ADDR_MW    ),
+    .ADDR_SW    (ADDR_SW    ),
     .BATCH_NUM  (BATCH_NUM  )
 )U_FC_Ctrl(
     .clk                (axi_aclk_0     ),

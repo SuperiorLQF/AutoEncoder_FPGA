@@ -6,7 +6,8 @@ import struct
 import numpy as np
 # from fixedpoint import FixedPoint
 import time
-
+import random
+import numpy as np
 
 
 def _generate_hex_from_np(i_samples):
@@ -66,7 +67,7 @@ Q is also AutoEncoder FC Layer's output Dimension
 '''
 def fc_batch_cal(i_samples,
                  test = True,
-                 result_offset_addr = 0x6800,
+                 result_offset_addr = 0x1A000,
                  h2c_device_file_path='/dev/xdma0_h2c_0',
                  c2h_device_file_path='/dev/xdma0_c2h_0'):
     ###########################################
@@ -108,15 +109,44 @@ def fc_batch_cal(i_samples,
         # 保存到 recv.bin 文件
         _save_to_file('../output/recv.bin', recv_data)
         print(o_samples)
+        print(len(o_samples))
     ###########################################
 
     return o_samples
-    
+
+def soft_verify(test_in,test_out):
+    threshold_err = 0.01
+    print('-'*50)
+    print(f"\33[1;7;32m{'Compare Procedure':^50}\33[0m")
+    print('-'*50)    
+    bias        = np.load('../etc/encoder.0.bias.npy')
+    weights     = np.load('../etc/encoder.0.weight.npy')
+    bias_R      = bias.reshape(-1,1)
+    for i in range(test_in.shape[0]):
+        test_in_T = test_in[i].reshape(-1,1)
+        mac = weights @ test_in_T + bias_R
+        result = np.tanh(mac).reshape(-1)
+        err = np.sum(np.square(result - test_out[i]))
+        if(err>=threshold_err):
+            print(f"\33[1;31mCOMPARE_FAIL\33[0m in NO.{i} point")
+
+            print('reference value is : ')
+            print("\33[1m",end='')
+            print(result)
+            print("\33[0m",end='')
+            print('WHILE recv value is : ')
+            print("\33[1m",end='')
+            print(test_out[i])
+            print("\33[0m",end='')
+            print('-'*50)
 if __name__ == "__main__":
-    fc_batch_cal(
-        i_samples=np.array([[0.5 for _ in range(96)] for __ in range(10)]),
+    random.seed(40)
+    test_in = np.array([[random.uniform(-1,1) for _ in range(96)] for __ in range(320)])
+    test_out= fc_batch_cal(
+        i_samples=test_in,
         test=True
     )
+    soft_verify(test_in,test_out)
 ''' kernel driver example
 # 将十六进制字符串写入设备文件
 def write_to_device(device_path, hex_string):
