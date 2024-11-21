@@ -1,1 +1,22 @@
 export STEM=$(pwd)
+export PRJ_DIR="$STEM/../AutoEncoder_FPGA_prj"
+export ACV_DIR="$STEM/../AutoEncoder_FPGA_archive"
+export DRV_DIR="$STEM/../dma_ip_drivers-master"
+export TARGET_DRV_PATH="$DRV_DIR/XDMA/linux-kernel"
+load_xdma_drv() {
+    cd $TARGET_DRV_PATH
+    sudo ./load_driver.sh
+}
+alias go='cd $STEM'
+archive_this_prj() {
+    export TMP_DIR=$(pwd)
+    cd "$STEM"
+    git add .
+    git commit -m "[STABLE] auto archive"
+    git push
+    git rev_parse HEAD > "$TMP_DIR/GITID"
+    export ZIPNAME=$(git rev-parse --short HEAD)
+    cd "$TMP_DIR/../"
+    zip -r "$ZIPNAME.zip" "$TMP_DIR/"
+    mv "$ZIPNAME.zip" "$ACV_DIR"
+}
