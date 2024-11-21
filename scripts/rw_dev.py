@@ -67,7 +67,7 @@ Q is also AutoEncoder FC Layer's output Dimension
 '''
 def fc_batch_cal(i_samples,
                  test = True,
-                 result_offset_addr = 0x1A000,
+                 result_offset_addr = 0x0000,
                  h2c_device_file_path='/dev/xdma0_h2c_0',
                  c2h_device_file_path='/dev/xdma0_c2h_0'):
     ###########################################
@@ -108,8 +108,6 @@ def fc_batch_cal(i_samples,
         _save_to_file('../output/send.bin', send_data)
         # 保存到 recv.bin 文件
         _save_to_file('../output/recv.bin', recv_data)
-        print(o_samples)
-        print(len(o_samples))
     ###########################################
 
     return o_samples
@@ -139,14 +137,54 @@ def soft_verify(test_in,test_out):
             print(test_out[i])
             print("\33[0m",end='')
             print('-'*50)
+        else:
+            print(f"\33[1;32mNO.{i} COMPARE_PASS\33[0m")
+def fc_batch_cal_320(   i_samples,
+                        test = True,
+                        result_offset_addr = 0x0000,
+                        h2c_device_file_path='/dev/xdma0_h2c_0',
+                        c2h_device_file_path='/dev/xdma0_c2h_0'):
+    ###########################################
+    if(test == True):
+        # 记录开始时间
+        start_time = time.perf_counter()
+    ###########################################
+
+    result_lst =[]
+    for i in range(32):
+        test_in_sml  = i_samples[i*10:i*10+10]
+        test_out_sml = fc_batch_cal(
+                                            i_samples=test_in_sml,
+                                            test=False,
+                                            result_offset_addr=result_offset_addr,
+                                            h2c_device_file_path = h2c_device_file_path,
+                                            c2h_device_file_path = c2h_device_file_path
+                                        )
+        result_lst.append(test_out_sml)
+
+    result_array = np.vstack(result_lst)
+
+    ###########################################
+    if(test == True):
+        # 记录结束时间
+        end_time = time.perf_counter()
+        # 计算并输出执行时间
+        execution_time = end_time - start_time
+        soft_verify(i_samples,result_array)
+        print(f"Execution time: {execution_time} seconds")
+    ###########################################
+     
+    return result_array
+
 if __name__ == "__main__":
     random.seed(40)
     test_in = np.array([[random.uniform(-1,1) for _ in range(96)] for __ in range(320)])
-    test_out= fc_batch_cal(
+    test_out= fc_batch_cal_320(
         i_samples=test_in,
-        test=True
+        test=True,
+        result_offset_addr= 0x6800
     )
-    soft_verify(test_in,test_out)
+
 ''' kernel driver example
 # 将十六进制字符串写入设备文件
 def write_to_device(device_path, hex_string):

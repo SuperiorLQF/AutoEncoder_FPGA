@@ -54,7 +54,7 @@ localparam  BC_STORE_LAST_ADDR  = BC_STORE_BASE + BATCH_NUM * DIM_INPUT * 32 / 8
 //RESULT_REGION:    0xD00 - 0xFFF(3kB)
 //////////////////////////////////////////////////////
 localparam  FC_LOAD_BASE        = 'h000;
-localparam  FC_STORE_BASE       = 'h3400;
+localparam  FC_STORE_BASE       = 'hd00;
 localparam  FC_LOAD_ADDR_INC    =  1;
 localparam  FC_STORE_ADDR_INC   =  1;
 localparam  FC_STORE_LAST_ADDR  = FC_STORE_BASE + BATCH_NUM * DIM_OUTPUT / 2 -FC_STORE_ADDR_INC;

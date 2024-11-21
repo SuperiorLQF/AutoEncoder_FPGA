@@ -25,8 +25,8 @@ localparam CLK_FRE          = 200;      //clock frequency(Mhz)
 localparam BAUD_RATE        = 115200;   //UART baud rate
 localparam BRAM_DAT_W       = 64;
 localparam BRAM_ADDR_W      = 14;
-localparam BATCH_NUM        = 320;//10
-localparam ADDR_MW          = 17;
+localparam BATCH_NUM        = 10;//10
+localparam ADDR_MW          = 15;
 localparam ADDR_SW          = ADDR_MW -3 ;
 wire  [INPUT_W-1:0]   fc_dat_i  ;      
 wire                  fc_vld_i;
