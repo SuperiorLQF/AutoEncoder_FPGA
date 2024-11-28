@@ -8,6 +8,9 @@ load_xdma_drv() {
     sudo ./load_driver.sh
 }
 alias go='cd $STEM'
+alias go_prj='cd $PRJ_DIR'
+alias go_archive='cd $ACV_DIR'
+alias go_drv='cd $DRV_DIR'
 archive_this_prj() {
     export TMP_DIR=$(pwd)
     export TMP_DIR_BASE=$(basename $TMP_DIR)
