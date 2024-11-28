@@ -11,13 +11,14 @@ alias go='cd $STEM'
 archive_this_prj() {
     export TMP_DIR=$(pwd)
     export TMP_DIR_BASE=$(basename $TMP_DIR)
-    cd "$STEM"
+    go 
     git add .
     git commit -m "[STABLE] auto archive"
     git push
     git rev-parse HEAD > "$TMP_DIR/GITID"
-    export ZIPNAME=$(git rev-parse --short HEAD)
+    export ZIPNAME="${TMP_DIR_BASE}_$(git rev-parse --short HEAD)"
     cd "$TMP_DIR/../"
     zip -r "$ZIPNAME.zip" "./$TMP_DIR_BASE/"
     mv "$ZIPNAME.zip" "$ACV_DIR"
+    cd "$ACV_DIR"
 }
