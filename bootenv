@@ -13,7 +13,7 @@ archive_this_prj() {
     export TMP_DIR_BASE=$(basename $TMP_DIR)
     go 
     git add .
-    git commit -m "[STABLE] auto archive"
+    git commit -m "[STABLE] [${TMP_DIR_BASE}] auto archive"
     git push
     git rev-parse HEAD > "$TMP_DIR/GITID"
     export ZIPNAME="${TMP_DIR_BASE}_$(git rev-parse --short HEAD)"
