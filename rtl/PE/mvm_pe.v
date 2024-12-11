@@ -222,7 +222,8 @@ always @(posedge clk,negedge rst_n) begin
         dout_addr <= dout_addr + 2'd2;
     end
 end
-assign dout_we = (cstate == SAVE);
+assign dout_we  = (cstate == SAVE);
+assign dout_dat = din_fifo_dato;
 //din addr
 assign din_rd = (cstate!= SAVE);
 always @(posedge clk,negedge rst_n) begin
